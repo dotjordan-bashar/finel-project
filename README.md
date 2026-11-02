@@ -1,153 +1,143 @@
-# DriveJo – Car Rental Platform (MERN)
+# DriveJo - Car Rental Website
 
-A full-stack car rental web app for Jordan. Car owners list their cars, customers search and book them, and an admin reviews cars and manages the whole platform.
+DriveJo is a car rental website for Jordan that I built as my final project for the DOT Jordan Full-Stack Web Development Bootcamp. It uses the MERN stack (MongoDB, Express, React and Node.js).
 
-Built as the final project for the **DOT Jordan Full-Stack Web Development Bootcamp**.
+The idea is simple. People who own cars can list them on the site, customers can search for a car and book it for the days they need, and an admin checks the cars before they show up and manages everything on the site.
 
-## Tech stack
+## How the site works
 
-| Part      | Technology                                         |
-|-----------|----------------------------------------------------|
-| Frontend  | React 19, React Router, Axios, Bootstrap 5, Bootstrap Icons, Vite |
-| Backend   | Node.js, Express 5, MVC structure                  |
-| Database  | MongoDB with Mongoose                              |
-| Auth      | JWT (JSON Web Tokens) + bcrypt password hashing    |
-| Validation| express-validator (backend) + form checks (frontend) |
+There are three types of users.
 
-## Features
+A customer can browse the cars, search and filter them, open a car's page and book it from one date to another. The total price is calculated from the price per day and the number of days. Customers can see all their bookings and cancel a booking if they change their mind.
 
-- **Authentication:** register, log in, stay logged in with a JWT, update profile and password
-- **3 roles with different permissions**
-  - **Customer:** browse cars, book a car for specific dates, cancel bookings
-  - **Owner:** add / edit / delete their cars, hide a car, accept or reject booking requests
-  - **Admin:** dashboard with statistics, manage users (role, disable, delete), approve or reject cars, manage all bookings
-- **Full CRUD** on cars, bookings and users
-- **Search, filters, sorting and pagination** (brand/model search, city, category, transmission, fuel, price range)
-- **Booking logic:** blocks overlapping bookings, calculates the total price, status flow `pending → confirmed → completed` (or `cancelled`)
-- **Car review flow:** new or edited cars are `pending` until an admin approves them
-- **Validation** on both frontend and backend, with clear error messages
-- **Responsive design** for mobile, tablet and desktop
+An owner can add their own cars with the details (brand, model, year, city, category, transmission, fuel type, price per day and an image link). They can edit or delete their cars, or hide a car for a while without deleting it. When a customer books one of their cars, the owner sees the request and can accept or reject it.
 
-## Project structure
+The admin has a dashboard with numbers about the site, like how many users, cars and bookings there are. The admin can change a user's role, disable or delete an account, approve or reject cars and manage all the bookings.
 
-```
-finelproject/
-├── backend/
-│   ├── config/         # database connection + shared constant lists
-│   ├── controllers/    # request logic (auth, cars, bookings, admin)
-│   ├── middleware/     # auth/roles, validation rules, error handler
-│   ├── models/         # Mongoose schemas: User, Car, Booking
-│   ├── routes/         # API endpoints
-│   ├── utils/          # helpers: AppError, JWT, pagination
-│   ├── seed.js         # demo data
-│   └── server.js       # app entry point
-└── frontend/
-    └── src/
-        ├── api/        # axios instance (adds the token to requests)
-        ├── components/ # reusable UI: Navbar, CarCard, Pagination...
-        ├── context/    # AuthContext (logged-in user)
-        ├── pages/      # public, owner/ and admin/ pages
-        └── utils/      # constants and helper functions
-```
+When an owner adds a new car or edits one, it goes back to pending and does not appear to customers until the admin approves it. This way nobody can post a fake or wrong car without it being checked first.
 
-## Getting started
+Bookings start as pending. The owner confirms them, and after the rental is done they are marked as completed. They can also be cancelled. The site does not allow two bookings on the same car for days that overlap, so a car can't be booked twice at the same time.
 
-### Requirements
-- Node.js 18 or newer
-- MongoDB running locally (or a MongoDB Atlas connection string)
+## Other features
 
-### 1. Backend
+- Register and log in, and you stay logged in after refreshing the page
+- Update your name, phone number and password from the profile page
+- Search cars by brand or model
+- Filter by city, category, transmission, fuel type and price range
+- Sort the results and move between pages
+- Every form is validated on the frontend and the backend, and the user sees a clear message when something is wrong
+- The design works on phones, tablets and desktops
+
+## Technologies I used
+
+For the frontend I used React with Vite, React Router for the pages, Axios to talk to the API, and Bootstrap with Bootstrap Icons for the design.
+
+For the backend I used Node.js and Express and organized the code in the MVC style (models, controllers and routes in separate folders). The data is saved in MongoDB using Mongoose.
+
+Passwords are hashed with bcrypt before they are saved, and logging in returns a JWT token that the frontend sends with every request that needs the user to be logged in. Each route checks the user's role, so for example a customer can't open the admin pages or call the admin API. I used express-validator to check the data that reaches the server, and all errors go through one error handler so the responses always have the same shape.
+
+## Folders
+
+The project has two folders, `backend` and `frontend`.
+
+Inside `backend` there is `config` for the database connection and some fixed lists (like the cities and categories), `models` for the User, Car and Booking schemas, `controllers` for the logic of each part, `routes` for the API endpoints, `middleware` for checking the login and roles, the validation rules and the error handler, and `utils` for small helpers. `server.js` starts the app and `seed.js` fills the database with demo data.
+
+Inside `frontend/src` there is `pages` for every page of the site (with `owner` and `admin` folders for their own pages), `components` for parts that are used in many places like the navbar, the car card and the pagination, `context` for keeping track of the logged-in user, `api` for the Axios setup, and `utils` for constants and helper functions.
+
+## How to run it
+
+You need Node.js 18 or newer and MongoDB, either installed on your computer or a MongoDB Atlas link.
+
+First run the backend:
+
 ```bash
 cd backend
 npm install
-cp .env.example .env      # then edit the values
-npm run seed              # optional: adds demo data
-npm run dev               # starts on http://localhost:5000
+cp .env.example .env
+npm run seed
+npm run dev
 ```
 
-### 2. Frontend
+The `npm run seed` step is optional. It adds some demo users, cars and bookings so the site isn't empty. The API runs on http://localhost:5000.
+
+Then in another terminal run the frontend:
+
 ```bash
 cd frontend
 npm install
 cp .env.example .env
-npm run dev               # opens on http://localhost:5173
+npm run dev
 ```
 
-## Environment variables
+The site opens on http://localhost:5173.
 
-**backend/.env**
+### The .env files
 
-| Variable        | Description                                  | Example |
-|-----------------|----------------------------------------------|---------|
-| `PORT`          | Port the API runs on                         | `5000` |
-| `NODE_ENV`      | `development` shows error details            | `development` |
-| `MONGO_URI`     | MongoDB connection string                    | `mongodb://127.0.0.1:27017/car_rental` |
-| `CLIENT_URL`    | Frontend URL allowed by CORS                 | `http://localhost:5173` |
-| `JWT_SECRET`    | Secret used to sign tokens (keep it private) | a long random string |
-| `JWT_EXPIRES_IN`| How long a login lasts                       | `7d` |
+In `backend/.env` you need to set:
 
-**frontend/.env**
+- `PORT` - the port of the API, for example 5000
+- `NODE_ENV` - set it to development to see more details when there is an error
+- `MONGO_URI` - the MongoDB connection link, for example mongodb://127.0.0.1:27017/car_rental
+- `CLIENT_URL` - the address of the frontend, for example http://localhost:5173
+- `JWT_SECRET` - a long random text used to sign the tokens (don't share it)
+- `JWT_EXPIRES_IN` - how long the login stays valid, for example 7d
 
-| Variable       | Description          | Example |
-|----------------|----------------------|---------|
-| `VITE_API_URL` | Base URL of the API  | `http://localhost:5000/api` |
+In `frontend/.env` you only need `VITE_API_URL`, which is the address of the API, for example http://localhost:5000/api.
 
-## Demo accounts (after `npm run seed`)
+## Demo accounts
 
-| Role     | Email                  | Password      |
-|----------|------------------------|---------------|
-| Admin    | admin@drivejo.com      | admin123      |
-| Owner    | owner@drivejo.com      | owner123      |
-| Customer | customer@drivejo.com   | customer123   |
+If you ran the seed, you can log in with these accounts:
 
-## API endpoints
+- Admin: admin@drivejo.com / admin123
+- Owner: owner@drivejo.com / owner123
+- Customer: customer@drivejo.com / customer123
 
-All endpoints start with `/api`. 🔒 = needs a token.
+## API
 
-### Auth
-| Method | Endpoint          | Access | Description |
-|--------|-------------------|--------|-------------|
-| POST   | `/auth/register`  | Public | Create an account (customer or owner) |
-| POST   | `/auth/login`     | Public | Log in, returns a token |
-| GET    | `/auth/me`        | 🔒 Any | Current user |
-| PUT    | `/auth/me`        | 🔒 Any | Update name, phone, password |
+All the endpoints start with `/api`.
 
-### Cars
-| Method | Endpoint     | Access | Description |
-|--------|--------------|--------|-------------|
-| GET    | `/cars`      | Public | Approved cars. Query: `search, city, category, transmission, fuelType, minPrice, maxPrice, sort, page, limit` |
-| GET    | `/cars/:id`  | Public | One car (hidden cars only for their owner/admin) |
-| GET    | `/cars/mine` | 🔒 Owner | The owner's cars |
-| POST   | `/cars`      | 🔒 Owner, Admin | Add a car |
-| PUT    | `/cars/:id`  | 🔒 Owner of car, Admin | Edit a car |
-| DELETE | `/cars/:id`  | 🔒 Owner of car, Admin | Delete a car |
+Auth:
 
-### Bookings
-| Method | Endpoint               | Access | Description |
-|--------|------------------------|--------|-------------|
-| POST   | `/bookings`            | 🔒 Customer | Book a car |
-| GET    | `/bookings/my`         | 🔒 Customer | My bookings |
-| GET    | `/bookings/owner`      | 🔒 Owner | Bookings on my cars |
-| PATCH  | `/bookings/:id/status` | 🔒 Customer / Owner / Admin | Cancel, confirm, complete |
+- `POST /auth/register` - create a new account as a customer or owner
+- `POST /auth/login` - log in and get a token
+- `GET /auth/me` - get the logged-in user (needs login)
+- `PUT /auth/me` - update name, phone or password (needs login)
 
-### Admin (🔒 Admin only)
-| Method | Endpoint                  | Description |
-|--------|---------------------------|-------------|
-| GET    | `/admin/stats`            | Dashboard numbers |
-| GET    | `/admin/users`            | Users. Query: `search, role, page` |
-| PATCH  | `/admin/users/:id`        | Change role / enable / disable |
-| DELETE | `/admin/users/:id`        | Delete a user and their data |
-| GET    | `/admin/cars`             | All cars. Query: `search, status, page` |
-| PATCH  | `/admin/cars/:id/status`  | Approve / reject a car |
-| GET    | `/admin/bookings`         | All bookings. Query: `status, page` |
-| DELETE | `/admin/bookings/:id`     | Delete a booking |
+Cars:
 
-## Future ideas
-- Upload car photos instead of using image links
-- Online payment
-- Reviews and ratings for cars and owners
-- Email notifications when a booking is confirmed
-- Arabic language support
+- `GET /cars` - list the approved cars. It accepts search, city, category, transmission, fuelType, minPrice, maxPrice, sort, page and limit in the query
+- `GET /cars/:id` - get one car. A hidden car can only be seen by its owner or the admin
+- `GET /cars/mine` - the cars of the logged-in owner (owner or admin)
+- `POST /cars` - add a car (owner or admin)
+- `PUT /cars/:id` - edit a car (the car's owner or admin)
+- `DELETE /cars/:id` - delete a car (the car's owner or admin)
 
-## Video demo
-_Add your demo video link here._
+Bookings (all need login):
+
+- `POST /bookings` - book a car (customer)
+- `GET /bookings/my` - the customer's bookings
+- `GET /bookings/owner` - the bookings on the owner's cars
+- `PATCH /bookings/:id/status` - cancel, confirm or complete a booking, depending on who you are
+
+Admin (only for the admin):
+
+- `GET /admin/stats` - the numbers for the dashboard
+- `GET /admin/users` - list the users, with search, role and page in the query
+- `PATCH /admin/users/:id` - change a user's role or enable/disable them
+- `DELETE /admin/users/:id` - delete a user and their data
+- `GET /admin/cars` - list all the cars, with search, status and page in the query
+- `PATCH /admin/cars/:id/status` - approve or reject a car
+- `GET /admin/bookings` - list all the bookings, with status and page in the query
+- `DELETE /admin/bookings/:id` - delete a booking
+
+## Things I want to add later
+
+- Uploading car photos instead of using image links
+- Paying online
+- Reviews and ratings for the cars and the owners
+- Sending an email when a booking is confirmed
+- An Arabic version of the site
+
+## Demo video
+
+The video link will be added here.
